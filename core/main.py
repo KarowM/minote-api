@@ -50,16 +50,18 @@ class NoteModify(Resource):
             abort(404, message=f"Could not find note with id {note_id}")
 
         args = note_patch_args.parse_args()
-        if args['title'] is None and args['body'] is None:
+        title = args['title']
+        body = args['body']
+        if title is None and body is None:
             abort(400, message=f"Must provide at least title or body to patch note with id {note_id}")
-        if args['title']:
-            if len(args['title']) > 30:
+        if title:
+            if len(title) > 30:
                 abort(400, message='Title length cannot exceed 30 characters')
-            notes[note_id]['title'] = args['title']
-        if args['body']:
-            if len(args['body']) > 250:
+            notes[note_id]['title'] = title
+        if body:
+            if len(body) > 250:
                 abort(400, message='Body length cannot exceed 250 characters')
-            notes[note_id]['body'] = args['body']
+            notes[note_id]['body'] = body
 
         return args, 200
 
