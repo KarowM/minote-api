@@ -54,6 +54,13 @@ class NoteModify(Resource):
 
         return args, 200
 
+    def delete(self, note_id):
+        if note_id not in notes:
+            abort(404, message=f"Could not find note with id {note_id}")
+
+        notes.pop(note_id)
+        return '', 204
+
 
 class Notes(Resource):
     def get(self):
