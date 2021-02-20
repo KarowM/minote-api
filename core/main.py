@@ -29,9 +29,14 @@ class Note(Resource):
     def post(self):
         global nextPos
         args = note_post_args.parse_args()
+        title = args['title']
         body = args['body'] if args['body'] else ''
+        if len(title) > 30:
+            abort(400, message='Title length cannot exceed 30 characters')
+        if len(body) > 250:
+            abort(400, message='Note body length cannot exceed 250 characters')
         note_note = {
-            'title': args['title'],
+            'title': title,
             'body': body
         }
         notes[nextPos] = note_note
@@ -48,8 +53,12 @@ class NoteModify(Resource):
         if args['title'] is None and args['body'] is None:
             abort(400, message=f"Must provide at least title or body to patch note with id {note_id}")
         if args['title']:
+            if len(args['title']) > 30:
+                abort(400, message='Title length cannot exceed 30 characters')
             notes[note_id]['title'] = args['title']
         if args['body']:
+            if len(args['body']) > 250:
+                abort(400, message='Body length cannot exceed 250 characters')
             notes[note_id]['body'] = args['body']
 
         return args, 200
