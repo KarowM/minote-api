@@ -25,9 +25,10 @@ class Note(Resource):
     def post(self):
         global nextPos
         args = note_post_args.parse_args()
+        body = args['body'] if args['body'] else ''
         note_note = {
             'title': args['title'],
-            'body': args['body']
+            'body': body
         }
         notes[nextPos] = note_note
         nextPos = nextPos + 1
