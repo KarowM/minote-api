@@ -1,6 +1,5 @@
-from flask_restful import Api, Resource, reqparse, abort
-from __init__ import mongo_db
-from __init__ import app
+from flask_restful import Resource, reqparse, abort
+from core import app, api, mongo_db
 
 NOTE_BODY_CHAR_LIMIT = 250
 NOTE_TITLE_CHAR_LIMIT = 30
@@ -90,7 +89,7 @@ class Notes(Resource):
     def get(self):
         return notes, OK
 
-api = Api(app)
+
 api.add_resource(Notes, '/api/notes', endpoint='all-notes')
 api.add_resource(Note, '/api/note', endpoint='note')
 api.add_resource(NoteModify, '/api/note/<int:note_id>', endpoint='note-modify')
