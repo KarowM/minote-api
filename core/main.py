@@ -1,6 +1,6 @@
-from flask import Flask
-from flask_pymongo import MongoClient
 from flask_restful import Api, Resource, reqparse, abort
+from __init__ import mongo_db
+from __init__ import app
 
 NOTE_BODY_CHAR_LIMIT = 250
 NOTE_TITLE_CHAR_LIMIT = 30
@@ -12,14 +12,10 @@ NO_CONTENT = 204
 BAD_REQUEST = 400
 NOT_FOUND = 404
 
-cluster = MongoClient('mongo_uri')
-col = cluster['minote']['notes']
-col.insert_one({
+mongo_db.insert_one({
     'title': 'hello',
     'body': 'world'
 })
-app = Flask(__name__)
-api = Api(app)
 
 note_post_args = reqparse.RequestParser()
 note_post_args.add_argument('title', type=str, help='Title of note is missing', required=True)
@@ -94,7 +90,7 @@ class Notes(Resource):
     def get(self):
         return notes, OK
 
-
+api = Api(app)
 api.add_resource(Notes, '/api/notes', endpoint='all-notes')
 api.add_resource(Note, '/api/note', endpoint='note')
 api.add_resource(NoteModify, '/api/note/<int:note_id>', endpoint='note-modify')
