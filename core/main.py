@@ -1,4 +1,5 @@
 from flask import Flask
+from flask_pymongo import MongoClient
 from flask_restful import Api, Resource, reqparse, abort
 
 NOTE_BODY_CHAR_LIMIT = 250
@@ -11,6 +12,12 @@ NO_CONTENT = 204
 BAD_REQUEST = 400
 NOT_FOUND = 404
 
+cluster = MongoClient('mongo_uri')
+col = cluster['minote']['notes']
+col.insert_one({
+    'title': 'hello',
+    'body': 'world'
+})
 app = Flask(__name__)
 api = Api(app)
 
