@@ -38,6 +38,10 @@ notes = {
 }
 
 
+def note_exists(note_id):
+    return mongo_db.find_one({'_id': ObjectId(note_id)}) is not None
+
+
 class Note(Resource):
     def post(self):
         global nextPos
@@ -48,13 +52,13 @@ class Note(Resource):
             abort(BAD_REQUEST, message='Title length cannot exceed 30 characters')
         if len(body) > NOTE_BODY_CHAR_LIMIT:
             abort(BAD_REQUEST, message='Note body length cannot exceed 250 characters')
-        note_note = {
+        new_note = {
             'title': title,
             'body': body
         }
-        notes[nextPos] = note_note
-        nextPos = nextPos + 1
-        return note_note, CREATED
+        mongo_db.insert_one(new_note)
+        new_note['_id'] = str(new_note.get('_id'))
+        return new_note, CREATED
 
 
 class NoteModify(Resource):
@@ -79,8 +83,10 @@ class NoteModify(Resource):
         return args, OK
 
     def delete(self, note_id):
-        mongo_db.delete_one({'_id': ObjectId(note_id)})
+        if not note_exists(note_id):
+            abort(NOT_FOUND, message=f"Could not find note with id {note_id}")
 
+        mongo_db.delete_one({'_id': ObjectId(note_id)})
         return '', NO_CONTENT
 
 
