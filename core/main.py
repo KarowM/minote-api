@@ -96,7 +96,11 @@ class NoteModify(Resource):
 
 class Notes(Resource):
     def get(self):
-        return notes, OK
+        docs = []
+        for note in mongo_db.find():
+            note['_id'] = str(note['_id'])
+            docs.append(note)
+        return docs, OK
 
 
 api.add_resource(Notes, '/api/notes', endpoint='all-notes')
