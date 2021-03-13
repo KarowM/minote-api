@@ -63,7 +63,7 @@ class Note(Resource):
 
 class NoteModify(Resource):
     def patch(self, note_id):
-        if note_id not in notes:
+        if not note_exists(note_id):
             abort(NOT_FOUND, message=f"Could not find note with id {note_id}")
 
         args = note_patch_args.parse_args()
@@ -74,11 +74,15 @@ class NoteModify(Resource):
         if title:
             if len(title) > NOTE_TITLE_CHAR_LIMIT:
                 abort(BAD_REQUEST, message='Title length cannot exceed 30 characters')
-            notes[note_id]['title'] = title
+            note = mongo_db.find_one({'_id': ObjectId(note_id)})
+            note['title'] = title
+            mongo_db.save(note)
         if body:
             if len(body) > NOTE_BODY_CHAR_LIMIT:
                 abort(BAD_REQUEST, message='Body length cannot exceed 250 characters')
-            notes[note_id]['body'] = body
+            note = mongo_db.find_one({'_id': ObjectId(note_id)})
+            note['body'] = body
+            mongo_db.save(note)
 
         return args, OK
 
