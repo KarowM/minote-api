@@ -1,5 +1,6 @@
 from flask_restful import Resource, reqparse, abort
 from core import app, api, mongo_db
+from bson.objectid import ObjectId
 
 NOTE_BODY_CHAR_LIMIT = 250
 NOTE_TITLE_CHAR_LIMIT = 30
@@ -11,10 +12,10 @@ NO_CONTENT = 204
 BAD_REQUEST = 400
 NOT_FOUND = 404
 
-mongo_db.insert_one({
-    'title': 'hello',
-    'body': 'world'
-})
+# mongo_db.insert_one({
+#     'title': 'hello',
+#     'body': 'world'
+# })
 
 note_post_args = reqparse.RequestParser()
 note_post_args.add_argument('title', type=str, help='Title of note is missing', required=True)
@@ -78,10 +79,8 @@ class NoteModify(Resource):
         return args, OK
 
     def delete(self, note_id):
-        if note_id not in notes:
-            abort(NOT_FOUND, message=f"Could not find note with id {note_id}")
+        mongo_db.delete_one({'_id': ObjectId(note_id)})
 
-        notes.pop(note_id)
         return '', NO_CONTENT
 
 
@@ -92,7 +91,7 @@ class Notes(Resource):
 
 api.add_resource(Notes, '/api/notes', endpoint='all-notes')
 api.add_resource(Note, '/api/note', endpoint='note')
-api.add_resource(NoteModify, '/api/note/<int:note_id>', endpoint='note-modify')
+api.add_resource(NoteModify, '/api/note/<string:note_id>', endpoint='note-modify')
 
 if __name__ == "__main__":
     app.run()
