@@ -25,17 +25,17 @@ note_patch_args = reqparse.RequestParser()
 note_patch_args.add_argument('title', type=str)
 note_patch_args.add_argument('body', type=str)
 
-nextPos = 2
-notes = {
-    0: {
-        'title': 'First note',
-        'body': 'Body of first note'
-    },
-    1: {
-        'title': 'Second note',
-        'body': 'Body of second note'
-    }
-}
+# nextPos = 2
+# notes = {
+#     0: {
+#         'title': 'First note',
+#         'body': 'Body of first note'
+#     },
+#     1: {
+#         'title': 'Second note',
+#         'body': 'Body of second note'
+#     }
+# }
 
 
 def note_exists(note_id):
