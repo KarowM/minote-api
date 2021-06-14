@@ -12,11 +12,6 @@ NO_CONTENT = 204
 BAD_REQUEST = 400
 NOT_FOUND = 404
 
-# mongo_db.insert_one({
-#     'title': 'hello',
-#     'body': 'world'
-# })
-
 note_post_args = reqparse.RequestParser()
 note_post_args.add_argument('title', type=str, help='Title of note is missing', required=True)
 note_post_args.add_argument('body', type=str)
@@ -25,26 +20,15 @@ note_patch_args = reqparse.RequestParser()
 note_patch_args.add_argument('title', type=str)
 note_patch_args.add_argument('body', type=str)
 
-# nextPos = 2
-# notes = {
-#     0: {
-#         'title': 'First note',
-#         'body': 'Body of first note'
-#     },
-#     1: {
-#         'title': 'Second note',
-#         'body': 'Body of second note'
-#     }
-# }
-
 
 def note_exists(note_id):
+    if not ObjectId.is_valid(note_id):
+        return False
     return mongo_db.find_one({'_id': ObjectId(note_id)}) is not None
 
 
 class Note(Resource):
     def post(self):
-        global nextPos
         args = note_post_args.parse_args()
         title = args['title']
         body = args['body'] if args['body'] else ''
