@@ -1,6 +1,8 @@
-from flask_restful import Resource, reqparse, abort
-from core import app, api, mongo_db
 from bson.objectid import ObjectId
+from flask_restful import Resource, reqparse, abort
+
+from core import app, api, mongo_db
+from core.resources.notes import Notes
 
 NOTE_BODY_CHAR_LIMIT = 250
 NOTE_TITLE_CHAR_LIMIT = 30
@@ -76,15 +78,6 @@ class NoteModify(Resource):
 
         mongo_db.delete_one({'_id': ObjectId(note_id)})
         return '', NO_CONTENT
-
-
-class Notes(Resource):
-    def get(self):
-        docs = []
-        for note in mongo_db.find():
-            note['_id'] = str(note['_id'])
-            docs.append(note)
-        return docs, OK
 
 
 api.add_resource(Notes, '/api/notes', endpoint='all-notes')
