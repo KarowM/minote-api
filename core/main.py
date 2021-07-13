@@ -2,6 +2,7 @@ from bson.objectid import ObjectId
 from flask_restful import Resource, reqparse, abort
 
 from core import app, api, mongo_db
+from core.resources.note import Note
 from core.resources.notes import Notes
 
 NOTE_BODY_CHAR_LIMIT = 250
@@ -14,10 +15,6 @@ NO_CONTENT = 204
 BAD_REQUEST = 400
 NOT_FOUND = 404
 
-note_post_args = reqparse.RequestParser()
-note_post_args.add_argument('title', type=str, help='Title of note is missing', required=True)
-note_post_args.add_argument('body', type=str)
-
 note_patch_args = reqparse.RequestParser()
 note_patch_args.add_argument('title', type=str)
 note_patch_args.add_argument('body', type=str)
@@ -27,24 +24,6 @@ def note_exists(note_id):
     if not ObjectId.is_valid(note_id):
         return False
     return mongo_db.find_one({'_id': ObjectId(note_id)}) is not None
-
-
-class Note(Resource):
-    def post(self):
-        args = note_post_args.parse_args()
-        title = args['title']
-        body = args['body'] if args['body'] else ''
-        if len(title) > NOTE_TITLE_CHAR_LIMIT:
-            abort(BAD_REQUEST, message='Title length cannot exceed 30 characters')
-        if len(body) > NOTE_BODY_CHAR_LIMIT:
-            abort(BAD_REQUEST, message='Note body length cannot exceed 250 characters')
-        new_note = {
-            'title': title,
-            'body': body
-        }
-        mongo_db.insert_one(new_note)
-        new_note['_id'] = str(new_note.get('_id'))
-        return new_note, CREATED
 
 
 class NoteModify(Resource):
