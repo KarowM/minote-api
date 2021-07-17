@@ -1,3 +1,4 @@
+# Note size limits
 NOTE_BODY_CHAR_LIMIT = 250
 NOTE_TITLE_CHAR_LIMIT = 30
 
