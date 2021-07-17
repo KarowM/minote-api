@@ -9,7 +9,7 @@ class Note(Resource):
     note_post_args.add_argument('body', type=str)
 
     def post(self):
-        args = Note.note_post_args.parse_args()
+        args = self.note_post_args.parse_args()
         title = args['title']
         body = args['body'] if args['body'] else ''
         if len(title) > constants.NOTE_TITLE_CHAR_LIMIT:

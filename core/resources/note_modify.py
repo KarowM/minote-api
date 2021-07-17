@@ -19,7 +19,7 @@ class NoteModify(Resource):
         if not self.note_exists(note_id):
             abort(constants.NOT_FOUND, message=f"Could not find note with id {note_id}")
 
-        args = NoteModify.note_patch_args.parse_args()
+        args = self.note_patch_args.parse_args()
         title = args['title']
         body = args['body']
         if title is None and body is None:
