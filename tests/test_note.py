@@ -23,3 +23,18 @@ class TestCases(unittest.TestCase):
 
         self.assertEqual(400, ctx.exception.code)
         self.assertEqual('Bad Request', ctx.exception.name)
+
+    def test_post_returns_bad_request_if_body_is_too_long(self):
+        mock_req_parse = Mock()
+        mock_req_parse.parse_args.return_value = {
+            'title': 'new title',
+            'body': 'a' * (constants.NOTE_BODY_CHAR_LIMIT + 1)
+        }
+        Note.note_post_args = mock_req_parse
+
+        note = Note()
+        with self.assertRaises(werkzeug.exceptions.BadRequest) as ctx:
+            note.post()
+
+        self.assertEqual(400, ctx.exception.code)
+        self.assertEqual('Bad Request', ctx.exception.name)
