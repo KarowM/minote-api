@@ -1,6 +1,9 @@
 import unittest
 from unittest.mock import patch
 
+import werkzeug
+
+import core.resources.note_modify
 from core.resources.note_modify import NoteModify
 
 
@@ -36,3 +39,14 @@ class TestCases(unittest.TestCase):
         actual_note_existence = note_modify.note_exists('1')
 
         self.assertTrue(actual_note_existence)
+
+    @patch.object(core.resources.note_modify.NoteModify, 'note_exists')
+    def test_delete_returns_not_found_if_note_id_not_found(self, mock_note_exists):
+        mock_note_exists.return_value = False
+
+        note_modify = NoteModify()
+        with self.assertRaises(werkzeug.exceptions.NotFound) as ctx:
+            note_modify.delete('1')
+
+        self.assertEqual(404, ctx.exception.code)
+        self.assertEqual('Not Found', ctx.exception.name)
