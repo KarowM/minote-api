@@ -89,3 +89,33 @@ class TestCases(unittest.TestCase):
 
         self.assertEqual(400, ctx.exception.code)
         self.assertEqual('Bad Request', ctx.exception.name)
+
+    @patch.object(core.resources.note_modify.NoteModify, 'note_exists')
+    def test_patch_returns_bad_request_if_title_is_too_long(self, mock_note_exists):
+        mock_note_exists.return_value = True
+        mock_req_parse = Mock()
+        mock_req_parse.parse_args.return_value = {'title': 'a' * (constants.NOTE_TITLE_CHAR_LIMIT + 1)}
+        NoteModify.note_patch_args = mock_req_parse
+
+        note_modify = NoteModify()
+        with self.assertRaises(werkzeug.exceptions.BadRequest) as ctx:
+            note_modify.patch('1')
+
+        self.assertEqual(400, ctx.exception.code)
+        self.assertEqual('Bad Request', ctx.exception.name)
+
+    @patch('core.resources.note_modify.mongo_db')
+    @patch.object(core.resources.note_modify.NoteModify, 'note_exists')
+    def test_patch_returns_updates_note_title(self, mock_note_exists, mock_mongo_db):
+        note_id = '111111111111111111111111'
+        mock_note_exists.return_value = True
+        mock_mongo_db.find_one.return_value = {'_id': ObjectId(note_id), 'title': 'old title'}
+        mock_req_parse = Mock()
+        mock_req_parse.parse_args.return_value = {'title': 'new title'}
+        NoteModify.note_patch_args = mock_req_parse
+
+        note_modify = NoteModify()
+        response = note_modify.patch(note_id)
+
+        mock_mongo_db.save.assert_called_with({'_id': ObjectId(note_id), 'title': 'new title'})
+        self.assertEqual(response, ({'title': 'new title'}, constants.OK))
