@@ -2,9 +2,11 @@ import unittest
 from unittest.mock import patch
 
 import werkzeug
+from bson import ObjectId
 
 import core.resources.note_modify
 from core.resources.note_modify import NoteModify
+from core.util import constants
 
 
 class TestCases(unittest.TestCase):
@@ -50,3 +52,15 @@ class TestCases(unittest.TestCase):
 
         self.assertEqual(404, ctx.exception.code)
         self.assertEqual('Not Found', ctx.exception.name)
+
+    @patch('core.resources.note_modify.mongo_db')
+    @patch.object(core.resources.note_modify.NoteModify, 'note_exists')
+    def test_delete_returns_not_found_if_note_id_not_found(self, mock_note_exists, mock_mongo_db):
+        mock_note_exists.return_value = True
+        note_id = '111111111111111111111111'
+
+        note_modify = NoteModify()
+        response = note_modify.delete(note_id)
+
+        mock_mongo_db.delete_one.assert_called_with({'_id': ObjectId(note_id)})
+        self.assertEqual(response, ('', constants.NO_CONTENT))
