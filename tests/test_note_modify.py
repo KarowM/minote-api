@@ -1,5 +1,5 @@
 import unittest
-from unittest.mock import patch
+from unittest.mock import patch, Mock
 
 import werkzeug
 from bson import ObjectId
@@ -66,7 +66,7 @@ class TestCases(unittest.TestCase):
         self.assertEqual(response, ('', constants.NO_CONTENT))
 
     @patch.object(core.resources.note_modify.NoteModify, 'note_exists')
-    def test_delete_returns_not_found_if_note_id_not_found(self, mock_note_exists):
+    def test_patch_returns_not_found_if_note_id_not_found(self, mock_note_exists):
         mock_note_exists.return_value = False
 
         note_modify = NoteModify()
@@ -75,3 +75,17 @@ class TestCases(unittest.TestCase):
 
         self.assertEqual(404, ctx.exception.code)
         self.assertEqual('Not Found', ctx.exception.name)
+
+    @patch.object(core.resources.note_modify.NoteModify, 'note_exists')
+    def test_patch_returns_bad_request_if_title_and_body_are_not_found(self, mock_note_exists):
+        mock_note_exists.return_value = True
+        mock_req_parse = Mock()
+        mock_req_parse.parse_args.return_value = {}
+        NoteModify.note_patch_args = mock_req_parse
+
+        note_modify = NoteModify()
+        with self.assertRaises(werkzeug.exceptions.BadRequest) as ctx:
+            note_modify.patch('1')
+
+        self.assertEqual(400, ctx.exception.code)
+        self.assertEqual('Bad Request', ctx.exception.name)

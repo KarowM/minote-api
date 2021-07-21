@@ -20,8 +20,8 @@ class NoteModify(Resource):
             abort(constants.NOT_FOUND, message=f"Could not find note with id {note_id}")
 
         args = self.note_patch_args.parse_args()
-        title = args['title']
-        body = args['body']
+        title = args.get('title')
+        body = args.get('body')
         if title is None and body is None:
             abort(constants.BAD_REQUEST, message=f"Must provide at least title or body to patch note with id {note_id}")
         if title:
