@@ -16,7 +16,7 @@ class TestCases(unittest.TestCase):
         notes = Notes()
         get_response = notes.get()
 
-        self.assertEqual(([], constants.OK), None)
+        self.assertEqual(([], constants.OK), get_response)
 
     @patch('core.resources.notes.mongo_db')
     def test_get_should_return_note_list_with_ok_status(self, mock_mongodb):
